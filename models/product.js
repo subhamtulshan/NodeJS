@@ -1,13 +1,5 @@
-const fs = require("fs");
-const path = require("path");
-
+const db = require("../util/database");
 const Cart = require("./cart");
-
-const p = path.join(
-  path.dirname(process.mainModule.filename),
-  "data",
-  "products.json"
-);
 
 module.exports = class Product {
   constructor(id, title, imageUrl, price, description) {
@@ -18,51 +10,19 @@ module.exports = class Product {
     this.price = price;
   }
   save() {
-    getProductFromFile((products) => {
-      if (this.id) {
-        const existingProductIndex = products.findIndex(
-          (p) => p.id === this.id
-        );
-        const updatedProducts = [...products];
-        updatedProducts[existingProductIndex] = this;
-        fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {});
-      } else {
-        this.id = Math.random().toString();
-        products.push(this);
-        fs.writeFile(p, JSON.stringify(products), (err) => {});
-      }
-    });
+    return db.execute(
+      "INSERT INTO products(title,imageUrl,description,price) VALUES(?,?,?,?)",
+      [this.title, this.imageUrl, this.description, this.price]
+    );
   }
 
-  static fetchAll(cb) {
-    getProductFromFile(cb);
+  static fetchAll() {
+    return db.execute("SELECT * FROM products");
   }
 
-  static findByID(id, cb) {
-    getProductFromFile((products) => {
-      const product = products.find((p) => p.id === id);
-      console.log(product);
-      cb(product);
-    });
+  static findByID(id) {
+    return db.execute("SELECT * FROM products WHERE id=?", [id]);
   }
 
-  static deleteById(id) {
-    getProductFromFile((product) => {
-      const prod = product.find((p) => p.id === id);
-      const updatedProducts = product.filter((p) => p.id !== id);
-      fs.writeFile(p, JSON.stringify(updatedProducts), (err) => {
-        if (!err) Cart.deleteProduct(id, prod.price);
-      });
-    });
-  }
-};
-
-const getProductFromFile = (cb) => {
-  fs.readFile(p, (err, fileContent) => {
-    if (!err) {
-      cb(JSON.parse(fileContent));
-    } else {
-      cb([]);
-    }
-  });
+  static deleteById(id) {}
 };
