@@ -1,33 +1,113 @@
-const Sequelize = require("sequelize").Sequelize;
+const mongodb = require("mongodb");
 
-const sequelize = require("../util/database");
+const getDb = require("../util/database");
 
-const Product = sequelize.define("product", {
-  id: {
-    type: Sequelize.INTEGER,
-    allowNull: false,
-    autoIncrement: true,
-    primaryKey: true,
-  },
-  title: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  imageUrl: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  description: {
-    type: Sequelize.TEXT,
-    allowNull: false,
-  },
-  price: {
-    type: Sequelize.DOUBLE,
-    allowNull: false,
-  },
-});
+class Product {
+  constructor(title, price, imageUrl, description, id, userId) {
+    this.title = title;
+    this.imageUrl = imageUrl;
+    this.price = price;
+    this.description = description;
+    this._id = id ? new mongodb.ObjectID(id) : null;
+    this.userId = userId;
+  }
+
+  save() {
+    const db = getDb.getDb();
+    let odb;
+    if (this._id) {
+      odb = db
+        .collection("product")
+        .updateOne({ _id: this._id }, { $set: this });
+    } else {
+      odb = db.collection("product").insertOne(this);
+    }
+    return odb
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  static fetchAll() {
+    const db = getDb.getDb();
+    return db
+      .collection("product")
+      .find()
+      .toArray()
+      .then((products) => {
+        console.log(products);
+        return products;
+      })
+      .catch((err) => {
+        console.log(products);
+      });
+  }
+
+  static findById(prodId) {
+    const db = getDb.getDb();
+    return db
+      .collection("product")
+      .find({ _id: new mongodb.ObjectID(prodId) })
+      .next()
+      .then((products) => {
+        console.log(products);
+        return products;
+      })
+      .catch((err) => {
+        console.log(products);
+      });
+  }
+
+  static deleteProduct(prodId) {
+    const db = getDb.getDb();
+    return db
+      .collection("product")
+      .remove({ _id: new mongodb.ObjectID(prodId) })
+      .then((products) => {
+        console.log(products);
+      })
+      .catch((err) => {
+        console.log(products);
+      });
+  }
+}
 
 module.exports = Product;
+//############product model with Sequelize##################
+
+// const Sequelize = require("sequelize").Sequelize;
+
+// const sequelize = require("../util/database");
+
+// const Product = sequelize.define("product", {
+//   id: {
+//     type: Sequelize.INTEGER,
+//     allowNull: false,
+//     autoIncrement: true,
+//     primaryKey: true,
+//   },
+//   title: {
+//     type: Sequelize.STRING,
+//     allowNull: false,
+//   },
+//   imageUrl: {
+//     type: Sequelize.STRING,
+//     allowNull: false,
+//   },
+//   description: {
+//     type: Sequelize.TEXT,
+//     allowNull: false,
+//   },
+//   price: {
+//     type: Sequelize.DOUBLE,
+//     allowNull: false,
+//   },
+// });
+
+// module.exports = Product;
 
 //############product model with FILE##################
 // const db = require("../util/database");
