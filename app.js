@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
+const mongoose = require("mongoose");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -13,16 +14,16 @@ const User = require("./models/user");
 // const cartItem = require("./models/cartItem");
 // const Order = require("./models/order");
 // const orderItem = require("./models/orderItem");
-const mongoConnect = require("./util/database");
+// const mongoConnect = require("./util/database");
 
 const app = express();
 app.set("view engine", "ejs");
 app.set("views", "views");
 
 app.use((req, res, next) => {
-  User.findById("5eb55ac4117e5285076a5496")
+  User.findById("5eb80e2c1601869154000a36")
     .then((user) => {
-      req.user = new User(user.name, user.email, user.cart, user._id);
+      req.user = user;
       next();
     })
     .catch((err) => {
@@ -38,9 +39,27 @@ app.use(shopRoutes);
 
 app.use(errorController.get404);
 
-mongoConnect.mongoConnect(() => {
-  app.listen(3000);
-});
+mongoose
+  .connect(
+    "mongodb+srv://Subham:subham@123@cluster0-bwsd5.mongodb.net/shop?retryWrites=true&w=majority",
+    { useNewUrlParser: true, useUnifiedTopology: true }
+  )
+  .then(() => {
+    User.findOne().then((user) => {
+      if (!user) {
+        const user = new User({
+          name: "test",
+          email: "test@test.com",
+          cart: { items: [] },
+        });
+        user.save();
+      }
+      app.listen(3000);
+    });
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 // Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 // User.hasMany(Product);
