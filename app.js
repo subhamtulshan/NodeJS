@@ -2,9 +2,12 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const mongoose = require("mongoose");
+const session = require("express-session");
+const mongoSessionStore = require("connect-mongodb-session")(session);
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
+const authRoutes = require("./routes/auth");
 const rootDir = require("./util/path");
 const errorController = require("./controllers/error");
 // const sequelize = require("./util/database");
@@ -17,11 +20,28 @@ const User = require("./models/user");
 // const mongoConnect = require("./util/database");
 
 const app = express();
+const store = new mongoSessionStore({
+  uri: "mongodb+srv://Subham:subham@123@cluster0-bwsd5.mongodb.net/shop",
+  collection: "sessions",
+});
+
 app.set("view engine", "ejs");
 app.set("views", "views");
 
+app.use(express.static(path.join(__dirname, "public")));
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(
+  session({
+    secret: "keyboard cat",
+    resave: false,
+    saveUninitialized: false,
+    store: store,
+  })
+);
+
 app.use((req, res, next) => {
-  User.findById("5eb80e2c1601869154000a36")
+  if (!req.session.user) return next();
+  User.findById(req.session.user._id)
     .then((user) => {
       req.user = user;
       next();
@@ -31,12 +51,9 @@ app.use((req, res, next) => {
     });
 });
 
-app.use(express.static(path.join(__dirname, "public")));
-app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
-
+app.use(authRoutes);
 app.use(errorController.get404);
 
 mongoose
