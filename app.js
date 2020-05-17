@@ -4,6 +4,8 @@ const path = require("path");
 const mongoose = require("mongoose");
 const session = require("express-session");
 const mongoSessionStore = require("connect-mongodb-session")(session);
+const csrf = require("csurf");
+const flash = require("connect-flash");
 
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
@@ -38,6 +40,8 @@ app.use(
     store: store,
   })
 );
+app.use(csrf());
+app.use(flash());
 
 app.use((req, res, next) => {
   if (!req.session.user) return next();
@@ -51,6 +55,12 @@ app.use((req, res, next) => {
     });
 });
 
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedin;
+  res.locals.csrfToken = req.csrfToken();
+  next();
+});
+
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -62,17 +72,7 @@ mongoose
     { useNewUrlParser: true, useUnifiedTopology: true }
   )
   .then(() => {
-    User.findOne().then((user) => {
-      if (!user) {
-        const user = new User({
-          name: "test",
-          email: "test@test.com",
-          cart: { items: [] },
-        });
-        user.save();
-      }
-      app.listen(3000);
-    });
+    app.listen(3000);
   })
   .catch((err) => {
     console.log(err);
