@@ -1,10 +1,13 @@
 const Product = require("../models/product");
+const { validationResult } = require("express-validator/check");
 
 exports.getAddProducts = (req, res, next) => {
   res.render("admin/edit-product", {
     pageTitle: "Add Product",
     path: "admin/add-product",
     editing: false,
+    hasError: false,
+    errorMessage: undefined,
     isAuthenticated: req.session.isLoggedin,
   });
 };
@@ -15,6 +18,22 @@ exports.postAddProducts = (req, res, next) => {
   const price = req.body.price;
   const description = req.body.description;
   const userId = req.user._id;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "admin/add-product",
+      editing: false,
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+    });
+  }
   const product = new Product({
     title: title,
     price: price,
@@ -59,7 +78,10 @@ exports.getEditProducts = (req, res, next) => {
         pageTitle: "Add Product",
         path: "admin/add-product",
         editing: true,
+        hasError: false,
         product: product,
+        errorMessage: undefined,
+        _id: productId,
         isAuthenticated: req.session.isLoggedin,
       });
     })
@@ -101,6 +123,22 @@ exports.postEditProducts = (req, res, next) => {
   const description = req.body.description;
   // const userId = req.user._id;
   // const product = new Product(title, price, imageUrl, description, id, userId);
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.render("admin/edit-product", {
+      pageTitle: "Add Product",
+      path: "admin/add-product",
+      editing: true,
+      hasError: true,
+      errorMessage: errors.array()[0].msg,
+      product: {
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description,
+      },
+    });
+  }
 
   Product.findById(id)
     .then((product) => {
