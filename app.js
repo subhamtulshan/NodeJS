@@ -51,7 +51,9 @@ app.use((req, res, next) => {
       next();
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 });
 
@@ -64,7 +66,15 @@ app.use((req, res, next) => {
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+app.use("/500", errorController.get500);
 app.use(errorController.get404);
+app.use((error, req, res, next) => {
+  res.status(404).render("500", {
+    pageTitle: "Error",
+    path: "/500",
+    isAuthenticated: req.session.isLoggedin,
+  });
+});
 
 mongoose
   .connect(

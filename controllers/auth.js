@@ -75,7 +75,9 @@ exports.postLogin = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
   // res.setHeader("set-Cookie", "isloggedin:true");
 };
@@ -125,7 +127,9 @@ exports.postSignUp = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -176,7 +180,9 @@ exports.postReset = (req, res, next) => {
           });
       })
       .catch((err) => {
-        console.log(err);
+        const error = new Error(err);
+        error.httpsStatusCode = 500;
+        return next(error);
       });
   });
 };
@@ -194,7 +200,9 @@ exports.getNewPassword = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 };
 exports.postNewPassword = (req, res, next) => {
@@ -221,6 +229,8 @@ exports.postNewPassword = (req, res, next) => {
       res.redirect("/login");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 };

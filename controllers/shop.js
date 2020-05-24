@@ -24,7 +24,9 @@ exports.getProduct = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -50,7 +52,9 @@ exports.getIndex = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 };
 exports.getCart = (req, res, next) => {
@@ -67,7 +71,9 @@ exports.getCart = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 
   // req.user
@@ -117,7 +123,9 @@ exports.postCart = (req, res, next) => {
       res.redirect("/cart");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 
   // const productId = req.body.productId;
@@ -181,7 +189,11 @@ exports.getOrders = (req, res, next) => {
         isAuthenticated: req.session.isLoggedin,
       });
     })
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postOrders = (req, res, next) => {
@@ -208,7 +220,9 @@ exports.postOrders = (req, res, next) => {
       res.redirect("/orders");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
   // let fetchedCart;
   // req.user
@@ -260,7 +274,11 @@ exports.getProductById = (req, res, next) => {
         isAuthenticated: req.session.isLoggedin,
       });
     })
-    .catch(() => {});
+    .catch((err) => {
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
+    });
 };
 
 exports.postDeleteCartProduct = (req, res, next) => {
@@ -271,7 +289,9 @@ exports.postDeleteCartProduct = (req, res, next) => {
       res.redirect("/");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 
   //   req.user

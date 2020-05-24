@@ -47,7 +47,9 @@ exports.postAddProducts = (req, res, next) => {
       res.redirect("/");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
   // req.user
   //   .createProduct({
@@ -86,7 +88,9 @@ exports.getEditProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 
   // const product = Product.findByID(productId, (product) => {
@@ -155,7 +159,9 @@ exports.postEditProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
   // Product.findByPk(id)
   //   .then((product) => {
@@ -185,7 +191,9 @@ exports.getProducts = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
 
   // Product.fetchAll((products) => {
@@ -217,7 +225,9 @@ exports.postDeleteProducts = (req, res, next) => {
       console.log("Product deleted");
     })
     .catch((err) => {
-      console.log(err);
+      const error = new Error(err);
+      error.httpsStatusCode = 500;
+      return next(error);
     });
   // Product.deleteById(productId);
   // res.redirect("/admin/products");
